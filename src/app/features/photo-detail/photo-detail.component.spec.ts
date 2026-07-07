@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { Router, provideRouter, withComponentInputBinding } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 
 import { PhotoDetailComponent } from './photo-detail.component';
 import { FavoritesService } from '../../core/services/favorites.service';
@@ -10,12 +9,8 @@ import { Photo } from '../../core/models/photo.model';
 function makePhoto(id: string): Photo {
   return {
     id,
-    author: 'Ada Lovelace',
-    width: 1,
-    height: 1,
-    sourceUrl: '',
     thumbnailUrl: `thumb-${id}`,
-    fullUrl: `https://picsum.photos/id/${id}/1200/800`,
+    fullUrl: `https://picsum.photos/seed/${id}/1200/800`,
   };
 }
 
@@ -27,7 +22,7 @@ describe('PhotoDetailComponent', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [PhotoDetailComponent],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideRouter([])],
     }).compileComponents();
     favorites = TestBed.inject(FavoritesService);
     fixture = TestBed.createComponent(PhotoDetailComponent);
@@ -41,7 +36,7 @@ describe('PhotoDetailComponent', () => {
 
     const host = fixture.nativeElement as HTMLElement;
     expect(host.querySelector('img')?.getAttribute('src')).toBe(
-      'https://picsum.photos/id/5/1200/800',
+      'https://picsum.photos/seed/5/1200/800',
     );
     expect(host.querySelector('button')?.textContent).toContain('Remove from favorites');
   });
@@ -60,16 +55,38 @@ describe('PhotoDetailComponent', () => {
     expect(navigate).toHaveBeenCalledWith(['/favorites']);
   });
 
-  it('falls back to an id-derived photo when the id is not a favorite', async () => {
-    fixture.componentRef.setInput('id', '77');
+  it('falls back to a seed-derived photo when the id is not a favorite', async () => {
+    fixture.componentRef.setInput('id', 'xyz');
     fixture.detectChanges();
     await fixture.whenStable();
 
     const host = fixture.nativeElement as HTMLElement;
     expect(host.querySelector('img')?.getAttribute('src')).toBe(
-      'https://picsum.photos/id/77/1200/800',
+      'https://picsum.photos/seed/xyz/1200/800',
     );
     expect(host.querySelector('.detail__note')).not.toBeNull();
     expect(host.querySelector('button')).toBeNull();
+  });
+});
+
+describe('PhotoDetailComponent (route param binding)', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('binds the :id route param to the id input and renders that photo', async () => {
+    await TestBed.configureTestingModule({
+      providers: [
+        provideRouter(
+          [{ path: 'photos/:id', component: PhotoDetailComponent }],
+          withComponentInputBinding(),
+        ),
+      ],
+    }).compileComponents();
+
+    const harness = await RouterTestingHarness.create();
+    const component = await harness.navigateByUrl('/photos/routed99', PhotoDetailComponent);
+
+    expect(component.id()).toBe('routed99');
+    const img = harness.routeNativeElement!.querySelector('img');
+    expect(img?.getAttribute('src')).toBe('https://picsum.photos/seed/routed99/1200/800');
   });
 });

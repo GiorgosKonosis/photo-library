@@ -7,12 +7,8 @@ import { Photo } from '../../../core/models/photo.model';
 
 const photo: Photo = {
   id: '1',
-  author: 'A',
-  width: 1,
-  height: 1,
-  sourceUrl: '',
-  thumbnailUrl: '',
-  fullUrl: '',
+  thumbnailUrl: 'thumb-1',
+  fullUrl: 'full-1',
 };
 
 describe('HeaderComponent', () => {

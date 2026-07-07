@@ -1,10 +1,10 @@
-import { Service, computed, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 
 import { Photo } from '../models/photo.model';
 
 const STORAGE_KEY = 'photo-library.favorites';
 
-@Service()
+@Injectable({ providedIn: 'root' })
 export class FavoritesService {
   private readonly _favorites = signal<Photo[]>(this.readFromStorage());
 

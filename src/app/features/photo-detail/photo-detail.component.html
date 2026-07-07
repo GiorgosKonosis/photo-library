@@ -2,18 +2,10 @@
 
 <section class="detail">
   <div class="detail__stage">
-    <img
-      class="detail__img"
-      [src]="currentPhoto.fullUrl"
-      [alt]="'Photo by ' + (currentPhoto.author || 'unknown author')"
-    />
+    <img class="detail__img" [src]="currentPhoto.fullUrl" [alt]="'Photo ' + currentPhoto.id" />
   </div>
 
   <div class="detail__meta">
-    @if (currentPhoto.author) {
-      <span class="detail__author">by {{ currentPhoto.author }}</span>
-    }
-
     @if (isFavorite()) {
       <button mat-flat-button (click)="removeFromFavorites()">
         <mat-icon>delete</mat-icon>

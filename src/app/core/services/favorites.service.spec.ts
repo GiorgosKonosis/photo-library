@@ -8,10 +8,6 @@ const STORAGE_KEY = 'photo-library.favorites';
 function makePhoto(id: string): Photo {
   return {
     id,
-    author: 'Author ' + id,
-    width: 1,
-    height: 1,
-    sourceUrl: '',
     thumbnailUrl: `thumb-${id}`,
     fullUrl: `full-${id}`,
   };
@@ -45,6 +41,20 @@ describe('FavoritesService', () => {
     service.remove('1');
     expect(service.isFavorite('1')).toBe(false);
     expect(service.count()).toBe(0);
+  });
+
+  it('persists removals to localStorage (removal survives a refresh)', () => {
+    const service = createService();
+    service.add(makePhoto('1'));
+    service.add(makePhoto('2'));
+    service.remove('1');
+
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
+    expect(stored.map((p: Photo) => p.id)).toEqual(['2']);
+
+    const reloaded = new FavoritesService();
+    expect(reloaded.isFavorite('1')).toBe(false);
+    expect(reloaded.isFavorite('2')).toBe(true);
   });
 
   it('toggle adds when absent and removes when present', () => {

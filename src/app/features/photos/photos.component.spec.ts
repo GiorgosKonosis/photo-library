@@ -9,24 +9,23 @@ import { Photo } from '../../core/models/photo.model';
 function pageOf(ids: string[]): Photo[] {
   return ids.map((id) => ({
     id,
-    author: 'A',
-    width: 1,
-    height: 1,
-    sourceUrl: '',
     thumbnailUrl: `thumb-${id}`,
     fullUrl: `full-${id}`,
   }));
 }
 
 class MockIntersectionObserver {
-  constructor(private readonly cb: IntersectionObserverCallback) {}
+  static last: MockIntersectionObserver | undefined;
   observe = vi.fn();
   unobserve = vi.fn();
   disconnect = vi.fn();
   takeRecords = vi.fn(() => []);
-  trigger(): void {
+  constructor(private readonly cb: IntersectionObserverCallback) {
+    MockIntersectionObserver.last = this;
+  }
+  emit(isIntersecting: boolean): void {
     this.cb(
-      [{ isIntersecting: true } as IntersectionObserverEntry],
+      [{ isIntersecting } as IntersectionObserverEntry],
       this as unknown as IntersectionObserver,
     );
   }
@@ -40,6 +39,7 @@ describe('PhotosComponent', () => {
   beforeEach(async () => {
     (globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver =
       MockIntersectionObserver;
+    MockIntersectionObserver.last = undefined;
     localStorage.clear();
     photoService = { getPhotos: vi.fn() };
 
@@ -57,7 +57,7 @@ describe('PhotosComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(photoService.getPhotos).toHaveBeenCalledWith(1);
+    expect(photoService.getPhotos).toHaveBeenCalledTimes(1);
     expect(component.photos().map((p) => p.id)).toEqual(['1', '2']);
     expect(component.loading()).toBe(false);
   });
@@ -72,8 +72,35 @@ describe('PhotosComponent', () => {
     component.loadMore();
     await fixture.whenStable();
 
-    expect(photoService.getPhotos).toHaveBeenNthCalledWith(2, 2);
     expect(component.photos().map((p) => p.id)).toEqual(['1', '2']);
+  });
+
+  it('loads more when the IntersectionObserver reports the sentinel is visible', async () => {
+    photoService.getPhotos
+      .mockReturnValueOnce(of(pageOf(['1'])))
+      .mockReturnValueOnce(of(pageOf(['2'])));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const observer = MockIntersectionObserver.last!;
+    expect(observer.observe).toHaveBeenCalledWith(component['sentinel']().nativeElement);
+
+    observer.emit(true);
+    await fixture.whenStable();
+
+    expect(photoService.getPhotos).toHaveBeenCalledTimes(2);
+    expect(component.photos().map((p) => p.id)).toEqual(['1', '2']);
+  });
+
+  it('does NOT load when the sentinel is reported not intersecting', async () => {
+    photoService.getPhotos.mockReturnValueOnce(of(pageOf(['1'])));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    MockIntersectionObserver.last!.emit(false);
+    await fixture.whenStable();
+
+    expect(photoService.getPhotos).toHaveBeenCalledTimes(1);
   });
 
   it('does not issue concurrent requests while a load is in flight', () => {
@@ -86,13 +113,18 @@ describe('PhotosComponent', () => {
     expect(component.loading()).toBe(true);
   });
 
-  it('sets the error flag when a request fails', () => {
-    photoService.getPhotos.mockReturnValue(
+  it('sets the error flag when a request fails, and clears it on a successful retry', async () => {
+    photoService.getPhotos.mockReturnValueOnce(
       new Observable<Photo[]>((subscriber) => subscriber.error(new Error('network'))),
     );
     component.loadMore();
     expect(component.error()).toBe(true);
     expect(component.loading()).toBe(false);
+
+    photoService.getPhotos.mockReturnValueOnce(of(pageOf(['1'])));
+    component.loadMore();
+    expect(component.error()).toBe(false);
+    expect(component.photos().map((p) => p.id)).toEqual(['1']);
   });
 
   it('toggles favorites when a photo is clicked', async () => {
@@ -111,7 +143,7 @@ describe('PhotosComponent', () => {
   it('disconnects the observer on destroy', () => {
     photoService.getPhotos.mockReturnValueOnce(of(pageOf(['1'])));
     fixture.detectChanges();
-    const observer = (component as unknown as { observer: MockIntersectionObserver }).observer;
+    const observer = MockIntersectionObserver.last!;
     fixture.destroy();
     expect(observer.disconnect).toHaveBeenCalled();
   });

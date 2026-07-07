@@ -8,10 +8,6 @@ import { Photo } from '../../core/models/photo.model';
 function makePhoto(id: string): Photo {
   return {
     id,
-    author: 'A',
-    width: 1,
-    height: 1,
-    sourceUrl: '',
     thumbnailUrl: `thumb-${id}`,
     fullUrl: `full-${id}`,
   };

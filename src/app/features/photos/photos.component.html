@@ -4,6 +4,7 @@
       <app-photo-card
         [photo]="photo"
         [favorite]="isFavorite(photo.id)"
+        [toggle]="true"
         (cardClick)="onToggleFavorite($event)"
       />
     }

@@ -33,7 +33,6 @@ export class PhotosComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly sentinel = viewChild.required<ElementRef<HTMLElement>>('sentinel');
   private observer?: IntersectionObserver;
-  private page = 1;
 
   ngOnInit(): void {
     this.loadMore();
@@ -70,16 +69,25 @@ export class PhotosComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loading.set(true);
     this.error.set(false);
 
-    this.photoService.getPhotos(this.page).subscribe({
+    this.photoService.getPhotos().subscribe({
       next: (batch) => {
         this.photos.update((current) => [...current, ...batch]);
-        this.page += 1;
         this.loading.set(false);
+        this.rearmObserver();
       },
       error: () => {
         this.loading.set(false);
         this.error.set(true);
       },
     });
+  }
+
+  private rearmObserver(): void {
+    if (!this.observer) {
+      return;
+    }
+    const el = this.sentinel().nativeElement;
+    this.observer.unobserve(el);
+    this.observer.observe(el);
   }
 }

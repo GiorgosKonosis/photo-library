@@ -23,5 +23,6 @@ describe('App', () => {
     await fixture.whenStable();
     const host = fixture.nativeElement as HTMLElement;
     expect(host.querySelector('app-header')).not.toBeNull();
+    expect(host.querySelector('router-outlet')).not.toBeNull();
   });
 });
