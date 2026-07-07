@@ -1,0 +1,15 @@
+<section class="favorites">
+  @if (favorites().length > 0) {
+    <div class="favorites__grid">
+      @for (photo of favorites(); track photo.id) {
+        <app-photo-card [photo]="photo" (cardClick)="openPhoto($event)" />
+      }
+    </div>
+  } @else {
+    <div class="favorites__empty">
+      <mat-icon>favorite_border</mat-icon>
+      <p class="favorites__empty-title">No favorites yet</p>
+      <p class="favorites__hint">Tap any photo on the Photos page to save it here.</p>
+    </div>
+  }
+</section>

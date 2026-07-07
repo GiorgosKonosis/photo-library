@@ -1,0 +1,37 @@
+.favorites {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 4rem 1rem;
+    text-align: center;
+    color: var(--mat-sys-on-surface-variant);
+
+    mat-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 48px;
+    }
+  }
+
+  &__empty-title {
+    font: var(--mat-sys-title-medium);
+    margin: 0;
+  }
+
+  &__hint {
+    font: var(--mat-sys-body-small);
+    margin: 0;
+  }
+}

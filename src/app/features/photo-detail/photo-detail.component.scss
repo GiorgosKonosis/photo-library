@@ -1,0 +1,39 @@
+.detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+
+  &__stage {
+    width: 100%;
+    max-width: 1000px;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  &__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__author {
+    font: var(--mat-sys-title-medium);
+  }
+
+  &__note {
+    margin: 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}

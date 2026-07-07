@@ -1,0 +1,24 @@
+<section class="photos">
+  <div class="photos__grid">
+    @for (photo of photos(); track photo.id) {
+      <app-photo-card
+        [photo]="photo"
+        [favorite]="isFavorite(photo.id)"
+        (cardClick)="onToggleFavorite($event)"
+      />
+    }
+  </div>
+
+  @if (loading()) {
+    <app-loader label="Loading photos…" />
+  }
+
+  @if (error()) {
+    <p class="photos__error" role="alert">
+      Couldn’t load photos.
+      <button type="button" class="photos__retry" (click)="loadMore()">Try again</button>
+    </p>
+  }
+
+  <div #sentinel class="photos__sentinel" aria-hidden="true"></div>
+</section>
