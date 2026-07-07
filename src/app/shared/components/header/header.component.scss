@@ -1,0 +1,35 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  box-shadow: var(--mat-sys-level2);
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font: var(--mat-sys-title-medium);
+  }
+
+  &__nav {
+    display: inline-flex;
+    gap: 0.5rem;
+  }
+
+  &__link--active {
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+  }
+
+  &__count {
+    margin-left: 0.4rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: var(--mat-sys-primary);
+    color: var(--mat-sys-on-primary);
+    font: var(--mat-sys-label-small);
+  }
+}

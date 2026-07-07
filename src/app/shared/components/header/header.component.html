@@ -1,0 +1,32 @@
+<mat-toolbar class="header">
+  <span class="header__brand">
+    <mat-icon>photo_library</mat-icon>
+    <span>Photo Library</span>
+  </span>
+
+  <nav class="header__nav" aria-label="Primary">
+    <a
+      mat-button
+      routerLink="/"
+      routerLinkActive="header__link--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      #photosLink="routerLinkActive"
+      [attr.aria-current]="photosLink.isActive ? 'page' : null"
+    >
+      Photos
+    </a>
+
+    <a
+      mat-button
+      routerLink="/favorites"
+      routerLinkActive="header__link--active"
+      #favoritesLink="routerLinkActive"
+      [attr.aria-current]="favoritesLink.isActive ? 'page' : null"
+    >
+      Favorites
+      @if (favoritesCount() > 0) {
+        <span class="header__count">{{ favoritesCount() }}</span>
+      }
+    </a>
+  </nav>
+</mat-toolbar>

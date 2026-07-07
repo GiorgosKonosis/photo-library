@@ -1,0 +1,22 @@
+@let currentPhoto = photo();
+
+<button
+  type="button"
+  class="photo-card"
+  [class.photo-card--favorite]="favorite()"
+  (click)="onActivate()"
+  [attr.aria-label]="'Photo by ' + (currentPhoto.author || 'unknown author')"
+>
+  <img
+    class="photo-card__img"
+    [src]="currentPhoto.thumbnailUrl"
+    [alt]="'Photo by ' + (currentPhoto.author || 'unknown author')"
+    loading="lazy"
+  />
+
+  @if (favorite()) {
+    <span class="photo-card__badge" aria-hidden="true">
+      <mat-icon>favorite</mat-icon>
+    </span>
+  }
+</button>
