@@ -13,6 +13,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/favorites/favorites.component').then((m) => m.FavoritesComponent),
   },
+  { path: 'photos', pathMatch: 'full', redirectTo: '' },
   {
     path: 'photos/:id',
     title: 'Photo',

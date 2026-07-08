@@ -25,7 +25,7 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
 })
 export class PhotosComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly photoService = inject(PhotoService);
-  private readonly favorites = inject(FavoritesService);
+  private readonly favoritesService = inject(FavoritesService);
 
   readonly photos = signal<Photo[]>([]);
   readonly loading = signal(false);
@@ -55,11 +55,11 @@ export class PhotosComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isFavorite(id: string): boolean {
-    return this.favorites.isFavorite(id);
+    return this.favoritesService.isFavorite(id);
   }
 
   onToggleFavorite(photo: Photo): void {
-    this.favorites.toggle(photo);
+    this.favoritesService.toggle(photo);
   }
 
   loadMore(): void {

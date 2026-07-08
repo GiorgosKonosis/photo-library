@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 
 import { PhotoService } from './photo.service';
-import { API_DELAY_MS, PHOTOS_PAGE_SIZE } from '../tokens/api-config';
+import { API_DELAY_MS, PHOTOS_PAGE_SIZE } from '../tokens/api-config.tokens';
 
 describe('PhotoService', () => {
   let service: PhotoService;

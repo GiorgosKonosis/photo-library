@@ -13,12 +13,12 @@ import { Photo } from '../../../core/models/photo.model';
 export class PhotoCardComponent {
   readonly photo = input.required<Photo>();
   readonly favorite = input(false);
-  readonly toggle = input(false);
+  readonly toggleMode = input(false);
   readonly cardClick = output<Photo>();
 
   readonly ariaLabel = computed(() => {
     const id = this.photo().id;
-    if (!this.toggle()) {
+    if (!this.toggleMode()) {
       return `Open photo ${id}`;
     }
     return this.favorite() ? `Remove photo ${id} from favorites` : `Add photo ${id} to favorites`;

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, delay, of } from 'rxjs';
 
 import { Photo } from '../models/photo.model';
-import { API_DELAY_MS, PHOTOS_PAGE_SIZE } from '../tokens/api-config';
+import { API_DELAY_MS, PHOTOS_PAGE_SIZE } from '../tokens/api-config.tokens';
 
 @Injectable({ providedIn: 'root' })
 export class PhotoService {

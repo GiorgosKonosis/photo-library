@@ -14,20 +14,20 @@ import { PhotoService } from '../../core/services/photo.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PhotoDetailComponent {
-  private readonly favorites = inject(FavoritesService);
+  private readonly favoritesService = inject(FavoritesService);
   private readonly photoService = inject(PhotoService);
   private readonly router = inject(Router);
 
   readonly id = input.required<string>();
 
   readonly photo = computed(
-    () => this.favorites.getById(this.id()) ?? this.photoService.buildFromId(this.id()),
+    () => this.favoritesService.getById(this.id()) ?? this.photoService.buildFromId(this.id()),
   );
 
-  readonly isFavorite = computed(() => this.favorites.isFavorite(this.id()));
+  readonly isFavorite = computed(() => this.favoritesService.isFavorite(this.id()));
 
   removeFromFavorites(): void {
-    this.favorites.remove(this.id());
+    this.favoritesService.remove(this.id());
     this.router.navigate(['/favorites']);
   }
 }

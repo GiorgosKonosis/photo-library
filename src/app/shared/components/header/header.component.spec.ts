@@ -2,20 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 
 import { HeaderComponent } from './header.component';
-import { FavoritesService } from '../../../core/services/favorites.service';
-import { Photo } from '../../../core/models/photo.model';
-
-const photo: Photo = {
-  id: '1',
-  thumbnailUrl: 'thumb-1',
-  fullUrl: 'full-1',
-};
 
 describe('HeaderComponent', () => {
   let fixture: ComponentFixture<HeaderComponent>;
 
   beforeEach(async () => {
-    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
@@ -59,14 +50,13 @@ describe('HeaderComponent', () => {
     expect(photosLink.getAttribute('aria-current')).toBeNull();
   });
 
-  it('shows a favorites count badge only when there are favorites', async () => {
-    const favorites = TestBed.inject(FavoritesService);
+  it('shows the count badge only when favoritesCount is positive', async () => {
     await fixture.whenStable();
     expect((fixture.nativeElement as HTMLElement).querySelector('.header__count')).toBeNull();
 
-    favorites.add(photo);
+    fixture.componentRef.setInput('favoritesCount', 3);
     await fixture.whenStable();
     const badge = (fixture.nativeElement as HTMLElement).querySelector('.header__count');
-    expect(badge?.textContent?.trim()).toBe('1');
+    expect(badge?.textContent?.trim()).toBe('3');
   });
 });

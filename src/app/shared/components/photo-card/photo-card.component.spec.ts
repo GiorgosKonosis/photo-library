@@ -49,7 +49,7 @@ describe('PhotoCardComponent', () => {
   });
 
   it('exposes toggle state to assistive tech when in toggle mode', async () => {
-    fixture.componentRef.setInput('toggle', true);
+    fixture.componentRef.setInput('toggleMode', true);
     await fixture.whenStable();
     const button = (fixture.nativeElement as HTMLElement).querySelector('button')!;
 
