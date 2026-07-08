@@ -147,4 +147,30 @@ describe('PhotosComponent', () => {
     fixture.destroy();
     expect(observer.disconnect).toHaveBeenCalled();
   });
+
+  it('re-arms the observer after a load so a short page keeps filling', async () => {
+    photoService.getPhotos.mockReturnValue(of(pageOf(['1'])));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const observer = MockIntersectionObserver.last!;
+    const observeCountAfterSetup = observer.observe.mock.calls.length;
+
+    component.loadMore();
+    await fixture.whenStable();
+
+    const sentinel = component['sentinel']().nativeElement;
+    expect(observer.unobserve).toHaveBeenCalledWith(sentinel);
+    expect(observer.observe).toHaveBeenCalledWith(sentinel);
+    expect(observer.observe.mock.calls.length).toBe(observeCountAfterSetup + 1);
+  });
+
+  it('shows the loader in the DOM while a request is in flight', async () => {
+    photoService.getPhotos.mockReturnValue(new Observable<Photo[]>(() => {}));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.loading()).toBe(true);
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-loader')).not.toBeNull();
+  });
 });
