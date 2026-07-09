@@ -14,3 +14,8 @@ export const PHOTOS_PAGE_SIZE = new InjectionToken<number>('PHOTOS_PAGE_SIZE', {
   providedIn: 'root',
   factory: () => 12,
 });
+
+export const API_ERROR_RATE = new InjectionToken<number>('API_ERROR_RATE', {
+  providedIn: 'root',
+  factory: () => 0.1,
+});

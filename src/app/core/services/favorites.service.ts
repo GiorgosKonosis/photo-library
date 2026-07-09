@@ -1,11 +1,14 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { Photo } from '../models/photo.model';
+import { PhotoService } from './photo.service';
 
 const STORAGE_KEY = 'photo-library.favorites';
 
 @Injectable({ providedIn: 'root' })
 export class FavoritesService {
+  private readonly photoService = inject(PhotoService);
+
   private readonly _favorites = signal<Photo[]>(this.readFromStorage());
 
   readonly favorites = this._favorites.asReadonly();
@@ -33,13 +36,12 @@ export class FavoritesService {
     this.writeToStorage();
   }
 
-  toggle(photo: Photo): boolean {
+  toggle(photo: Photo): void {
     if (this.isFavorite(photo.id)) {
       this.remove(photo.id);
-      return false;
+    } else {
+      this.add(photo);
     }
-    this.add(photo);
-    return true;
   }
 
   private readFromStorage(): Photo[] {
@@ -49,7 +51,12 @@ export class FavoritesService {
         return [];
       }
       const parsed: unknown = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as Photo[]) : [];
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+      return parsed
+        .filter((id): id is string => typeof id === 'string')
+        .map((id) => this.photoService.buildFromId(id));
     } catch {
       return [];
     }
@@ -57,8 +64,7 @@ export class FavoritesService {
 
   private writeToStorage(): void {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this._favorites()));
-    } catch {
-    }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this._favorites().map((p) => p.id)));
+    } catch {}
   }
 }

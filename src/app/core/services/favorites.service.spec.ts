@@ -50,18 +50,19 @@ describe('FavoritesService', () => {
     service.remove('1');
 
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
-    expect(stored.map((p: Photo) => p.id)).toEqual(['2']);
+    expect(stored).toEqual(['2']);
 
-    const reloaded = new FavoritesService();
+    TestBed.resetTestingModule();
+    const reloaded = createService();
     expect(reloaded.isFavorite('1')).toBe(false);
     expect(reloaded.isFavorite('2')).toBe(true);
   });
 
   it('toggle adds when absent and removes when present', () => {
     const service = createService();
-    expect(service.toggle(makePhoto('7'))).toBe(true);
+    service.toggle(makePhoto('7'));
     expect(service.isFavorite('7')).toBe(true);
-    expect(service.toggle(makePhoto('7'))).toBe(false);
+    service.toggle(makePhoto('7'));
     expect(service.isFavorite('7')).toBe(false);
   });
 
@@ -72,19 +73,18 @@ describe('FavoritesService', () => {
     expect(service.getById('nope')).toBeUndefined();
   });
 
-  it('persists favorites to localStorage', () => {
+  it('persists only the seeds to localStorage', () => {
     const service = createService();
     service.add(makePhoto('99'));
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
-    expect(stored).toHaveLength(1);
-    expect(stored[0].id).toBe('99');
+    expect(stored).toEqual(['99']);
   });
 
-  it('restores favorites from localStorage (survives a refresh)', () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([makePhoto('5')]));
+  it('restores favorites from stored seeds, re-deriving the URLs (survives a refresh)', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(['5']));
     const service = createService();
     expect(service.isFavorite('5')).toBe(true);
-    expect(service.getById('5')?.id).toBe('5');
+    expect(service.getById('5')?.fullUrl).toBe('https://picsum.photos/seed/5/1200/800');
   });
 
   it('tolerates corrupt storage without throwing', () => {
