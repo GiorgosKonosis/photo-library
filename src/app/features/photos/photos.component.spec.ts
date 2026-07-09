@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Observable, of } from 'rxjs';
+import { NEVER, Observable, of } from 'rxjs';
 
 import { PhotosComponent } from './photos.component';
 import { PhotoService } from '../../core/services/photo.service';
@@ -37,8 +37,7 @@ describe('PhotosComponent', () => {
   let photoService: { getPhotos: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    (globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver =
-      MockIntersectionObserver;
+    vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
     MockIntersectionObserver.last = undefined;
     localStorage.clear();
     photoService = { getPhotos: vi.fn() };
@@ -50,6 +49,10 @@ describe('PhotosComponent', () => {
 
     fixture = TestBed.createComponent(PhotosComponent);
     component = fixture.componentInstance;
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('loads the first page on init', async () => {
@@ -104,7 +107,7 @@ describe('PhotosComponent', () => {
   });
 
   it('does not issue concurrent requests while a load is in flight', () => {
-    photoService.getPhotos.mockReturnValue(new Observable<Photo[]>(() => {}));
+    photoService.getPhotos.mockReturnValue(NEVER);
 
     component.loadMore();
     component.loadMore();
@@ -127,16 +130,20 @@ describe('PhotosComponent', () => {
     expect(component.photos().map((p) => p.id)).toEqual(['1']);
   });
 
-  it('toggles favorites when a photo is clicked', async () => {
+  it('toggles favorites when a photo card is clicked', async () => {
     photoService.getPhotos.mockReturnValueOnce(of(pageOf(['1'])));
     fixture.detectChanges();
     await fixture.whenStable();
 
     const favorites = TestBed.inject(FavoritesService);
-    component.onToggleFavorite(component.photos()[0]);
+    const card = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      'app-photo-card button',
+    )!;
+
+    card.click();
     expect(favorites.isFavorite('1')).toBe(true);
 
-    component.onToggleFavorite(component.photos()[0]);
+    card.click();
     expect(favorites.isFavorite('1')).toBe(false);
   });
 
@@ -146,6 +153,26 @@ describe('PhotosComponent', () => {
     const observer = MockIntersectionObserver.last!;
     fixture.destroy();
     expect(observer.disconnect).toHaveBeenCalled();
+  });
+
+  it('ignores a load that completes after the component is destroyed', () => {
+    let emit!: (photos: Photo[]) => void;
+    photoService.getPhotos.mockReturnValue(
+      new Observable<Photo[]>((subscriber) => {
+        emit = (photos) => {
+          subscriber.next(photos);
+          subscriber.complete();
+        };
+      }),
+    );
+    fixture.detectChanges();
+    const observer = MockIntersectionObserver.last!;
+    fixture.destroy();
+
+    emit(pageOf(['1']));
+
+    expect(component.photos()).toEqual([]);
+    expect(observer.observe).toHaveBeenCalledTimes(1);
   });
 
   it('re-arms the observer after a load so a short page keeps filling', async () => {
@@ -166,7 +193,7 @@ describe('PhotosComponent', () => {
   });
 
   it('shows the loader in the DOM while a request is in flight', async () => {
-    photoService.getPhotos.mockReturnValue(new Observable<Photo[]>(() => {}));
+    photoService.getPhotos.mockReturnValue(NEVER);
     fixture.detectChanges();
     await fixture.whenStable();
 

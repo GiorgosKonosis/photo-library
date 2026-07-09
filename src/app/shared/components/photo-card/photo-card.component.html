@@ -3,7 +3,6 @@
 <button
   type="button"
   class="photo-card"
-  [class.photo-card--favorite]="favorite()"
   (click)="onActivate()"
   [attr.aria-label]="ariaLabel()"
   [attr.aria-pressed]="toggleMode() ? favorite() : null"

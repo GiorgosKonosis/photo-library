@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   OnDestroy,
   OnInit,
@@ -9,6 +10,8 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
 
 import { PhotoService } from '../../core/services/photo.service';
 import { FavoritesService } from '../../core/services/favorites.service';
@@ -18,7 +21,7 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
 
 @Component({
   selector: 'app-photos',
-  imports: [PhotoCardComponent, LoaderComponent],
+  imports: [PhotoCardComponent, LoaderComponent, MatButtonModule],
   templateUrl: './photos.component.html',
   styleUrl: './photos.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +29,7 @@ import { LoaderComponent } from '../../shared/components/loader/loader.component
 export class PhotosComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly photoService = inject(PhotoService);
   private readonly favoritesService = inject(FavoritesService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly photos = signal<Photo[]>([]);
   readonly loading = signal(false);
@@ -52,6 +56,7 @@ export class PhotosComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.observer?.disconnect();
+    this.observer = undefined;
   }
 
   isFavorite(id: string): boolean {
@@ -69,17 +74,20 @@ export class PhotosComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loading.set(true);
     this.error.set(false);
 
-    this.photoService.getPhotos().subscribe({
-      next: (batch) => {
-        this.photos.update((current) => [...current, ...batch]);
-        this.loading.set(false);
-        this.rearmObserver();
-      },
-      error: () => {
-        this.loading.set(false);
-        this.error.set(true);
-      },
-    });
+    this.photoService
+      .getPhotos()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (batch) => {
+          this.photos.update((current) => [...current, ...batch]);
+          this.loading.set(false);
+          this.rearmObserver();
+        },
+        error: () => {
+          this.loading.set(false);
+          this.error.set(true);
+        },
+      });
   }
 
   private rearmObserver(): void {

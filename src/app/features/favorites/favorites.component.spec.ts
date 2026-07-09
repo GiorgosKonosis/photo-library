@@ -40,14 +40,21 @@ describe('FavoritesComponent', () => {
     favorites.add(makePhoto('2'));
     fixture.detectChanges();
     await fixture.whenStable();
-    expect((fixture.nativeElement as HTMLElement).querySelectorAll('app-photo-card').length).toBe(2);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('app-photo-card').length).toBe(
+      2,
+    );
   });
 
-  it('navigates to the detail page when a favorite is opened', async () => {
+  it('navigates to the detail page when a favorite is clicked', async () => {
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+    favorites.add(makePhoto('7'));
+    fixture.detectChanges();
+    await fixture.whenStable();
 
-    fixture.componentInstance.openPhoto(makePhoto('7'));
+    (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLButtonElement>('app-photo-card button')!
+      .click();
 
     expect(navigate).toHaveBeenCalledWith(['/photos', '7']);
   });

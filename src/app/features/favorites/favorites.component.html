@@ -1,4 +1,6 @@
 <section class="favorites">
+  <h1 class="cdk-visually-hidden">Favorites</h1>
+
   @if (favorites().length > 0) {
     <div class="favorites__grid">
       @for (photo of favorites(); track photo.id) {

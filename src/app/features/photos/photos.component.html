@@ -1,4 +1,6 @@
 <section class="photos">
+  <h1 class="cdk-visually-hidden">Photos</h1>
+
   <div class="photos__grid">
     @for (photo of photos(); track photo.id) {
       <app-photo-card
@@ -17,7 +19,7 @@
   @if (error()) {
     <p class="photos__error" role="alert">
       Couldn’t load photos.
-      <button type="button" class="photos__retry" (click)="loadMore()">Try again</button>
+      <button mat-button type="button" class="photos__retry" (click)="loadMore()">Try again</button>
     </p>
   }
 
