@@ -1,7 +1,13 @@
 @use '@angular/material' as mat;
+@use '@angular/cdk' as cdk;
+
+@include cdk.a11y-visually-hidden;
 
 html {
   height: 100%;
+
+  --app-header-height: 64px;
+
   @include mat.theme(
     (
       color: (
@@ -12,6 +18,12 @@ html {
       density: 0,
     )
   );
+}
+
+@media (max-width: 599px) {
+  html {
+    --app-header-height: 56px;
+  }
 }
 
 body {

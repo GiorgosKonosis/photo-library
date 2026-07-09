@@ -1,17 +1,12 @@
 .detail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
+  position: relative;
+  height: calc(100vh - var(--app-header-height, 64px));
+  height: calc(100dvh - var(--app-header-height, 64px));
+  background: #000;
 
   &__stage {
     width: 100%;
-    max-width: 1000px;
-    aspect-ratio: 3 / 2;
-    overflow: hidden;
-    border-radius: 12px;
-    background: var(--mat-sys-surface-container-high);
+    height: 100%;
   }
 
   &__img {
@@ -22,14 +17,19 @@
   }
 
   &__meta {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: 0.75rem;
-  }
-
-  &__author {
-    font: var(--mat-sys-title-medium);
+    max-width: calc(100% - 2rem);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    box-shadow: var(--mat-sys-level2);
   }
 
   &__note {

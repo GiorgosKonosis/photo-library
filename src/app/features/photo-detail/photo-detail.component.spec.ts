@@ -41,7 +41,7 @@ describe('PhotoDetailComponent', () => {
     expect(host.querySelector('button')?.textContent).toContain('Remove from favorites');
   });
 
-  it('removes from favorites and navigates back', async () => {
+  it('removes from favorites and navigates back when the Remove button is clicked', async () => {
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
     favorites.add(makePhoto('5'));
@@ -49,7 +49,7 @@ describe('PhotoDetailComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    fixture.componentInstance.removeFromFavorites();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button')!.click();
 
     expect(favorites.isFavorite('5')).toBe(false);
     expect(navigate).toHaveBeenCalledWith(['/favorites']);
@@ -65,7 +65,20 @@ describe('PhotoDetailComponent', () => {
       'https://picsum.photos/seed/xyz/1200/800',
     );
     expect(host.querySelector('.detail__note')).not.toBeNull();
-    expect(host.querySelector('button')).toBeNull();
+    expect(host.querySelector('button')?.textContent).toContain('Add to favorites');
+  });
+
+  it('adds a non-favorite to favorites and switches to the Remove action', async () => {
+    fixture.componentRef.setInput('id', 'xyz');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const host = fixture.nativeElement as HTMLElement;
+    host.querySelector('button')!.click();
+    fixture.detectChanges();
+
+    expect(favorites.isFavorite('xyz')).toBe(true);
+    expect(host.querySelector('button')?.textContent).toContain('Remove from favorites');
   });
 });
 

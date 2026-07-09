@@ -1,6 +1,8 @@
 @let currentPhoto = photo();
 
 <section class="detail">
+  <h1 class="cdk-visually-hidden">Photo {{ currentPhoto.id }}</h1>
+
   <div class="detail__stage">
     <img class="detail__img" [src]="currentPhoto.fullUrl" [alt]="'Photo ' + currentPhoto.id" />
   </div>
@@ -13,7 +15,10 @@
       </button>
     } @else {
       <p class="detail__note">This photo is not in your favorites.</p>
-      <a mat-stroked-button routerLink="/favorites">Back to favorites</a>
+      <button mat-flat-button (click)="addToFavorites()">
+        <mat-icon>favorite</mat-icon>
+        Add to favorites
+      </button>
     }
   </div>
 </section>
